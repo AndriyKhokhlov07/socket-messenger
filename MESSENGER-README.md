@@ -64,7 +64,7 @@ Project includes authentication, contacts, private chat channels, typing indicat
 
 ```bash
 # 1) Clone and enter project
-git clone <YOUR_REPO_URL>
+git clone https://github.com/AndriyKhokhlov07/socket-messenger
 cd socket-messenger
 
 # 2) Create env
@@ -319,4 +319,3 @@ git push -u origin main
 - Default auth pages and dashboard are styled to match messenger visual language.
 - Reverb server runs in dedicated container (`reverb` service).
 - For production deployment, configure secure secrets, HTTPS, proper queue supervision, and monitoring.
-
