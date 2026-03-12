@@ -1,6 +1,8 @@
 @php
     $dashboardActive = request()->routeIs('dashboard');
     $chatActive = request()->routeIs('chat*');
+    $contactsActive = request()->routeIs('contacts.*');
+    $mediaActive = request()->routeIs('media.*');
     $profileActive = request()->routeIs('profile.*');
 @endphp
 
@@ -17,6 +19,12 @@
                 </a>
                 <a class="tg-nav__link {{ $chatActive ? 'is-active' : '' }}" href="{{ route('chat') }}">
                     {{ __('Chat') }}
+                </a>
+                <a class="tg-nav__link {{ $contactsActive ? 'is-active' : '' }}" href="{{ route('contacts.index') }}">
+                    {{ __('Contacts') }}
+                </a>
+                <a class="tg-nav__link {{ $mediaActive ? 'is-active' : '' }}" href="{{ route('media.index') }}">
+                    {{ __('Media') }}
                 </a>
             </div>
         </div>
@@ -63,6 +71,12 @@
             </a>
             <a class="tg-nav-mobile__link {{ $chatActive ? 'is-active' : '' }}" href="{{ route('chat') }}">
                 {{ __('Chat') }}
+            </a>
+            <a class="tg-nav-mobile__link {{ $contactsActive ? 'is-active' : '' }}" href="{{ route('contacts.index') }}">
+                {{ __('Contacts') }}
+            </a>
+            <a class="tg-nav-mobile__link {{ $mediaActive ? 'is-active' : '' }}" href="{{ route('media.index') }}">
+                {{ __('Media') }}
             </a>
             <a class="tg-nav-mobile__link {{ $profileActive ? 'is-active' : '' }}" href="{{ route('profile.edit') }}">
                 {{ __('Profile') }}

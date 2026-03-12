@@ -40,9 +40,12 @@ Project includes authentication, contacts, private chat channels, typing indicat
 - Registration/Login/Logout (Laravel Breeze)
 - Presence-based contact list with online/offline states
 - Real-time private messaging
+- Attachments: images, videos, documents
+- Emoji picker in message composer
 - Typing events
 - Message statuses: `sent`, `delivered`, `read`
 - Read receipts in chat + contact preview metadata
+- Additional workspace pages: `Dashboard`, `Contacts`, `Shared Media`, `Profile`
 - Responsive messenger UI
 
 ### CI Quality Gate
@@ -95,16 +98,24 @@ docker compose exec app php artisan key:generate
 # 8) Run migrations
 docker compose exec app php artisan migrate
 
-# 9) Clear stale caches
+# 9) Publish storage symlink (required for attachments)
+docker compose exec app php artisan storage:link
+
+# 10) Clear stale caches
 docker compose exec app php artisan optimize:clear
 
-# 10) Build frontend assets
+# 11) Build frontend assets
 docker compose exec node npm run build
 ```
 
 Open:
 - App: `http://localhost:8080`
 - Chat: `http://localhost:8080/chat`
+- Dashboard: `http://localhost:8080/dashboard`
+- Contacts: `http://localhost:8080/contacts`
+- Shared Media: `http://localhost:8080/media`
+- Login: `http://localhost:8080/login`
+- Register: `http://localhost:8080/register`
 - Reverb WS endpoint: `ws://localhost:6001`
 
 ---
@@ -191,6 +202,8 @@ docker compose exec node npm run build
 
 - `GET /chat` - messenger UI
 - `GET /chat/contacts` - contacts list payload
+- `GET /contacts` - contacts directory page
+- `GET /media` - shared media page
 - `GET /messages/{user}` - message history
 - `POST /messages` - send message
 - `PATCH /messages/{message}/status` - update message status

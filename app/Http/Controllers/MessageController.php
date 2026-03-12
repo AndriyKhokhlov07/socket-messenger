@@ -20,8 +20,7 @@ class MessageController extends Controller
     public function __construct(
         private readonly MessageService $messageService,
         private readonly ConversationService $conversationService,
-    ) {
-    }
+    ) {}
 
     public function index(User $user, LoadMessagesRequest $request): AnonymousResourceCollection|JsonResponse
     {
@@ -66,7 +65,8 @@ class MessageController extends Controller
         $message = $this->messageService->send(
             sender: $request->user(),
             receiver: $receiver,
-            body: (string) $request->validated('body'),
+            body: (string) ($request->validated('body') ?? ''),
+            attachment: $request->file('attachment'),
         );
 
         return new MessageResource($message);

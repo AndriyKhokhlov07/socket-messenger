@@ -8,16 +8,25 @@ use App\Events\UserTyping;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 
 class MessageService
 {
-    public function send(User $sender, User $receiver, string $body): Message
+    public function send(User $sender, User $receiver, ?string $body = null, ?UploadedFile $attachment = null): Message
     {
+        $normalizedBody = trim((string) $body);
+        $attachmentMeta = $this->storeAttachment($attachment);
+
         $message = Message::query()->create([
             'sender_id' => $sender->id,
             'receiver_id' => $receiver->id,
-            'body' => trim($body),
+            'body' => $normalizedBody,
+            'attachment_path' => $attachmentMeta['path'] ?? null,
+            'attachment_name' => $attachmentMeta['name'] ?? null,
+            'attachment_mime' => $attachmentMeta['mime'] ?? null,
+            'attachment_size' => $attachmentMeta['size'] ?? null,
+            'attachment_type' => $attachmentMeta['type'] ?? null,
             'status' => Message::STATUS_SENT,
         ]);
 
@@ -116,5 +125,39 @@ class MessageService
         }
 
         return $requestedStatus;
+    }
+
+    /**
+     * @return array{path: string, name: string, mime: string, size: int, type: string}|null
+     */
+    private function storeAttachment(?UploadedFile $attachment): ?array
+    {
+        if ($attachment === null) {
+            return null;
+        }
+
+        $mime = (string) ($attachment->getClientMimeType() ?: $attachment->getMimeType() ?: 'application/octet-stream');
+        $path = $attachment->store('chat-attachments/'.now()->format('Y/m'), 'public');
+
+        return [
+            'path' => $path,
+            'name' => $attachment->getClientOriginalName(),
+            'mime' => $mime,
+            'size' => (int) ($attachment->getSize() ?? 0),
+            'type' => $this->resolveAttachmentType($mime),
+        ];
+    }
+
+    private function resolveAttachmentType(string $mime): string
+    {
+        if (str_starts_with($mime, 'image/')) {
+            return 'image';
+        }
+
+        if (str_starts_with($mime, 'video/')) {
+            return 'video';
+        }
+
+        return 'file';
     }
 }

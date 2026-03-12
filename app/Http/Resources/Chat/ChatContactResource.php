@@ -26,6 +26,8 @@ class ChatContactResource extends JsonResource
             'last_seen_at' => data_get($this->resource, 'last_seen_at'),
             'unread_count' => (int) data_get($this->resource, 'unread_count', 0),
             'last_message' => data_get($this->resource, 'last_message'),
+            'last_message_attachment_name' => data_get($this->resource, 'last_message_attachment_name'),
+            'last_message_attachment_type' => data_get($this->resource, 'last_message_attachment_type'),
             'last_message_status' => data_get($this->resource, 'last_message_status'),
             'last_message_is_mine' => (bool) data_get($this->resource, 'last_message_is_mine', false),
             'last_message_at' => data_get($this->resource, 'last_message_at'),

@@ -11,8 +11,7 @@ class ConversationService
 {
     public function __construct(
         private readonly PresenceService $presenceService,
-    ) {
-    }
+    ) {}
 
     /**
      * @return Collection<int, array<string, mixed>>
@@ -41,6 +40,8 @@ class ConversationService
                 'messages.sender_id',
                 'messages.receiver_id',
                 'messages.body',
+                'messages.attachment_name',
+                'messages.attachment_type',
                 'messages.status',
                 'messages.created_at',
                 'latest_messages.contact_id',
@@ -70,6 +71,8 @@ class ConversationService
                     'last_seen_at' => $lastSeenAt?->toIso8601String(),
                     'unread_count' => (int) ($unreadCounts[$contact->id] ?? 0),
                     'last_message' => $latestMessage?->body,
+                    'last_message_attachment_name' => $latestMessage?->attachment_name,
+                    'last_message_attachment_type' => $latestMessage?->attachment_type,
                     'last_message_status' => $latestMessage?->status,
                     'last_message_is_mine' => (bool) ($latestMessage?->sender_id === $currentUserId),
                     'last_message_at' => $latestMessage?->created_at?->toIso8601String(),

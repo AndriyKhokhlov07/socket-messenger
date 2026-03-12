@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class MessageTest extends TestCase
@@ -56,6 +58,33 @@ class MessageTest extends TestCase
             'body' => 'Hello from sender',
             'status' => Message::STATUS_SENT,
         ]);
+    }
+
+    public function test_authenticated_user_can_send_message_with_attachment_only(): void
+    {
+        Storage::fake('public');
+        [$sender, $receiver] = User::factory()->count(2)->create();
+
+        $response = $this->actingAs($sender)->post('/messages', [
+            'receiver_id' => $receiver->id,
+            'body' => '   ',
+            'attachment' => UploadedFile::fake()->create('photo.png', 256, 'image/png'),
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.sender_id', $sender->id)
+            ->assertJsonPath('data.receiver_id', $receiver->id)
+            ->assertJsonPath('data.has_attachment', true)
+            ->assertJsonPath('data.attachment.type', 'image');
+
+        $message = Message::query()->latest('id')->first();
+
+        $this->assertNotNull($message);
+        $this->assertSame('', $message->body);
+        $this->assertNotNull($message->attachment_path);
+        $this->assertSame('image', $message->attachment_type);
+
+        Storage::disk('public')->assertExists((string) $message->attachment_path);
     }
 
     public function test_loading_conversation_marks_unread_messages_as_read(): void

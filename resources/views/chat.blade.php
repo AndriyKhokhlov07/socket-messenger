@@ -70,14 +70,42 @@
                 </div>
             </section>
 
-            <form class="tg-inputbar" id="message-form">
-                <textarea
-                    id="message-input"
-                    rows="1"
-                    maxlength="4000"
-                    placeholder="Write a message..."
-                    autocomplete="off"></textarea>
-                <button id="send-button" type="submit">Send</button>
+            <form class="tg-inputbar" id="message-form" enctype="multipart/form-data">
+                <input
+                    id="attachment-input"
+                    type="file"
+                    hidden
+                    accept="image/*,video/*,.pdf,.txt,.doc,.docx,.xls,.xlsx,.zip,.rar">
+
+                <div class="tg-attachment-preview" id="attachment-preview" hidden></div>
+                <div class="tg-emoji-picker" id="emoji-picker" hidden></div>
+
+                <div class="tg-inputbar__row">
+                    <button
+                        id="emoji-button"
+                        type="button"
+                        class="tg-inputbar__icon"
+                        aria-label="Insert emoji">
+                        🙂
+                    </button>
+
+                    <button
+                        id="attach-button"
+                        type="button"
+                        class="tg-inputbar__icon"
+                        aria-label="Attach file">
+                        📎
+                    </button>
+
+                    <textarea
+                        id="message-input"
+                        rows="1"
+                        maxlength="4000"
+                        placeholder="Write a message..."
+                        autocomplete="off"></textarea>
+
+                    <button id="send-button" type="submit">Send</button>
+                </div>
             </form>
         </section>
     </main>

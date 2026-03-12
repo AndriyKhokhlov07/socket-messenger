@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\TouchUserPresence;
@@ -10,9 +11,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware(['auth', TouchUserPresence::class])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -21,6 +22,8 @@ Route::middleware(['auth', TouchUserPresence::class])->group(function () {
 
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');
     Route::get('/chat/contacts', [ChatController::class, 'contacts'])->name('chat.contacts');
+    Route::get('/contacts', [ChatController::class, 'directory'])->name('contacts.index');
+    Route::get('/media', [ChatController::class, 'media'])->name('media.index');
 
     Route::post('/messages/typing', [MessageController::class, 'typing'])->name('messages.typing');
     Route::patch('/messages/{message}/status', [MessageController::class, 'updateStatus'])

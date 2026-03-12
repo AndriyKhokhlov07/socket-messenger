@@ -12,7 +12,9 @@ class Message extends Model
     use HasFactory;
 
     public const STATUS_SENT = 'sent';
+
     public const STATUS_DELIVERED = 'delivered';
+
     public const STATUS_READ = 'read';
 
     /**
@@ -22,6 +24,11 @@ class Message extends Model
         'sender_id',
         'receiver_id',
         'body',
+        'attachment_path',
+        'attachment_name',
+        'attachment_mime',
+        'attachment_size',
+        'attachment_type',
         'status',
         'delivered_at',
         'read_at',
@@ -35,6 +42,7 @@ class Message extends Model
         return [
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
+            'attachment_size' => 'integer',
             'delivered_at' => 'datetime',
             'read_at' => 'datetime',
         ];
