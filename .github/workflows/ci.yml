@@ -35,11 +35,11 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
-      - name: Run backend tests
-        run: php artisan test
-
       - name: Install frontend dependencies
         run: npm ci
 
       - name: Build frontend assets
         run: npm run build
+
+      - name: Run backend tests
+        run: php artisan test
