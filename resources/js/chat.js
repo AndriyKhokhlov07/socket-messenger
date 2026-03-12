@@ -103,6 +103,8 @@ if (
         id: Number(raw.id),
         name: String(raw.name ?? "Unknown"),
         avatar: String(raw.avatar ?? initials(raw.name)),
+        avatar_initials: String(raw.avatar_initials ?? raw.avatar ?? initials(raw.name)),
+        avatar_url: String(raw.avatar_url ?? ""),
         email: String(raw.email ?? ""),
         online: Boolean(raw.online),
         last_seen_at: raw.last_seen_at ?? null,
@@ -147,6 +149,18 @@ if (
             size: Number(raw.size ?? 0),
             type,
         };
+    };
+
+    const avatarContentMarkup = (avatarInitials, avatarUrl) => {
+        if (avatarUrl && avatarUrl.length > 0) {
+            return `<img class="tg-avatar__img" src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(avatarInitials)}">`;
+        }
+
+        return `<span class="tg-avatar__text">${escapeHtml(avatarInitials)}</span>`;
+    };
+
+    const avatarMarkup = (avatarInitials, avatarUrl, classes = "tg-avatar tg-avatar--sm") => {
+        return `<div class="${classes}">${avatarContentMarkup(avatarInitials, avatarUrl)}</div>`;
     };
 
     const normalizeMessage = (raw) => ({
@@ -302,13 +316,16 @@ if (
         const contact = activeContact();
 
         if (!contact) {
-            elements.activeAvatar.textContent = "?";
+            elements.activeAvatar.innerHTML = `<span class="tg-avatar__text">?</span>`;
             elements.activeName.textContent = "Select a conversation";
             elements.activeMeta.textContent = "Choose a user from the list";
             return;
         }
 
-        elements.activeAvatar.textContent = contact.avatar;
+        elements.activeAvatar.innerHTML = avatarContentMarkup(
+            contact.avatar_initials,
+            contact.avatar_url
+        );
         elements.activeName.textContent = contact.name;
         elements.activeMeta.textContent = contact.online ? "Online" : formatLastSeen(contact.last_seen_at);
     };
@@ -371,7 +388,7 @@ if (
 
                 return `
                     <button class="tg-contact ${isActive ? "is-active" : ""}" data-contact-id="${contact.id}" type="button">
-                        <div class="tg-avatar tg-avatar--sm">${escapeHtml(contact.avatar)}</div>
+                        ${avatarMarkup(contact.avatar_initials, contact.avatar_url, "tg-avatar tg-avatar--sm")}
                         <div class="tg-contact__main">
                             <p class="tg-contact__name">
                                 ${escapeHtml(contact.name)}

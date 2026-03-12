@@ -21,6 +21,8 @@ class ChatContactResource extends JsonResource
             'id' => (int) data_get($this->resource, 'id'),
             'name' => $name,
             'avatar' => $this->buildInitials($name),
+            'avatar_initials' => (string) data_get($this->resource, 'avatar_initials', $this->buildInitials($name)),
+            'avatar_url' => data_get($this->resource, 'avatar_url'),
             'email' => (string) data_get($this->resource, 'email', ''),
             'online' => (bool) data_get($this->resource, 'online', false),
             'last_seen_at' => data_get($this->resource, 'last_seen_at'),

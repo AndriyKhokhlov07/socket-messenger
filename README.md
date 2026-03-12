@@ -46,6 +46,8 @@ Project includes authentication, contacts, private chat channels, typing indicat
 - Message statuses: `sent`, `delivered`, `read`
 - Read receipts in chat + contact preview metadata
 - Additional workspace pages: `Dashboard`, `Contacts`, `Shared Media`, `Profile`
+- Activity page with recent message feed
+- User avatars (upload, update, remove)
 - Responsive messenger UI
 
 ### CI Quality Gate
@@ -112,8 +114,10 @@ Open:
 - App: `http://localhost:8080`
 - Chat: `http://localhost:8080/chat`
 - Dashboard: `http://localhost:8080/dashboard`
+- Activity: `http://localhost:8080/activity`
 - Contacts: `http://localhost:8080/contacts`
 - Shared Media: `http://localhost:8080/media`
+- Profile: `http://localhost:8080/profile`
 - Login: `http://localhost:8080/login`
 - Register: `http://localhost:8080/register`
 - Reverb WS endpoint: `ws://localhost:6001`
@@ -202,6 +206,7 @@ docker compose exec node npm run build
 
 - `GET /chat` - messenger UI
 - `GET /chat/contacts` - contacts list payload
+- `GET /activity` - personal message activity feed
 - `GET /contacts` - contacts directory page
 - `GET /media` - shared media page
 - `GET /messages/{user}` - message history

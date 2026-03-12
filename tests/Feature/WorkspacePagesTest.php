@@ -13,6 +13,7 @@ class WorkspacePagesTest extends TestCase
     public function test_guests_are_redirected_from_workspace_pages(): void
     {
         $this->get('/dashboard')->assertRedirect('/login');
+        $this->get('/activity')->assertRedirect('/login');
         $this->get('/contacts')->assertRedirect('/login');
         $this->get('/media')->assertRedirect('/login');
         $this->get('/profile')->assertRedirect('/login');
@@ -23,6 +24,7 @@ class WorkspacePagesTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)->get('/dashboard')->assertOk();
+        $this->actingAs($user)->get('/activity')->assertOk();
         $this->actingAs($user)->get('/contacts')->assertOk();
         $this->actingAs($user)->get('/media')->assertOk();
         $this->actingAs($user)->get('/profile')->assertOk();

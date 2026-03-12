@@ -16,7 +16,9 @@
 <body
     class="tg-page"
     data-user-id="{{ $authUser->id }}"
-    data-user-name="{{ $authUser->name }}">
+    data-user-name="{{ $authUser->name }}"
+    data-user-avatar="{{ $authUser->avatar_url }}"
+    data-user-initials="{{ $authUser->initials }}">
 
     <div class="tg-atmosphere"></div>
 
@@ -24,7 +26,11 @@
         <aside class="tg-sidebar" id="chat-sidebar">
             <header class="tg-sidebar__header">
                 <div class="tg-avatar">
-                    {{ mb_strtoupper(mb_substr($authUser->name, 0, 1)) }}
+                    @if($authUser->avatar_url)
+                        <img class="tg-avatar__img" src="{{ $authUser->avatar_url }}" alt="{{ $authUser->name }}">
+                    @else
+                        <span class="tg-avatar__text">{{ $authUser->initials }}</span>
+                    @endif
                 </div>
                 <div class="tg-sidebar__identity">
                     <h1>Socket Messenger</h1>

@@ -15,6 +15,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+Route::get('/activity', [DashboardController::class, 'activity'])
+    ->middleware(['auth'])
+    ->name('activity.index');
+
 Route::middleware(['auth', TouchUserPresence::class])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

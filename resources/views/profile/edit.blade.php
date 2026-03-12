@@ -12,9 +12,34 @@
                 @csrf
             </form>
 
-            <form method="post" action="{{ route('profile.update') }}" class="tg-form-grid">
+            <form method="post" action="{{ route('profile.update') }}" class="tg-form-grid" enctype="multipart/form-data">
                 @csrf
                 @method('patch')
+
+                <div>
+                    <label>{{ __('Avatar') }}</label>
+                    <div class="tg-profile-avatar-row">
+                        <div class="tg-profile-avatar">
+                            @if($user->avatar_url)
+                                <img class="tg-avatar__img" src="{{ $user->avatar_url }}" alt="{{ $user->name }}">
+                            @else
+                                <span class="tg-avatar__text">{{ $user->initials }}</span>
+                            @endif
+                        </div>
+                        <div class="tg-profile-avatar-actions">
+                            <input id="avatar" name="avatar" type="file" accept="image/*">
+                            @if ($user->avatar_url)
+                                <label class="tg-profile-remove">
+                                    <input type="checkbox" name="remove_avatar" value="1">
+                                    <span>{{ __('Remove current avatar') }}</span>
+                                </label>
+                            @endif
+                            @error('avatar')
+                                <p class="tg-form-errors">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
 
                 <div>
                     <label for="name">{{ __('Name') }}</label>

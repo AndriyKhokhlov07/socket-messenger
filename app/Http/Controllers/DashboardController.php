@@ -49,4 +49,39 @@ class DashboardController extends Controller
             'topContacts' => $topContacts,
         ]);
     }
+
+    public function activity(Request $request): View
+    {
+        $authUserId = $request->user()->id;
+
+        $messages = Message::query()
+            ->where(function ($query) use ($authUserId) {
+                $query->where('sender_id', $authUserId)
+                    ->orWhere('receiver_id', $authUserId);
+            })
+            ->with(['sender:id,name,avatar_path', 'receiver:id,name,avatar_path'])
+            ->latest('id')
+            ->limit(80)
+            ->get();
+
+        $sentToday = Message::query()
+            ->where('sender_id', $authUserId)
+            ->whereDate('created_at', now()->toDateString())
+            ->count();
+
+        $receivedToday = Message::query()
+            ->where('receiver_id', $authUserId)
+            ->whereDate('created_at', now()->toDateString())
+            ->count();
+
+        return view('activity.index', [
+            'messages' => $messages,
+            'stats' => [
+                'sent_today' => $sentToday,
+                'received_today' => $receivedToday,
+                'total' => $messages->count(),
+            ],
+            'authUserId' => $authUserId,
+        ]);
+    }
 }

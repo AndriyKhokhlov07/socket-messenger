@@ -50,7 +50,11 @@
                     <article class="tg-user-card">
                         <div class="tg-user-card__head">
                             <div class="tg-avatar tg-avatar--sm">
-                                {{ mb_strtoupper(mb_substr($contact['name'], 0, 1)) }}
+                                @if(!empty($contact['avatar_url']))
+                                    <img class="tg-avatar__img" src="{{ $contact['avatar_url'] }}" alt="{{ $contact['name'] }}">
+                                @else
+                                    <span class="tg-avatar__text">{{ $contact['avatar_initials'] }}</span>
+                                @endif
                             </div>
                             <strong>
                                 {{ $contact['name'] }}

@@ -58,7 +58,7 @@ class ConversationService
         return User::query()
             ->whereKeyNot($currentUserId)
             ->orderBy('name')
-            ->get(['id', 'name', 'email'])
+            ->get(['id', 'name', 'email', 'avatar_path'])
             ->map(function (User $contact) use ($latestMessages, $unreadCounts, $currentUserId) {
                 $latestMessage = $latestMessages->get($contact->id);
                 $lastSeenAt = $this->presenceService->lastSeenAt($contact->id);
@@ -67,6 +67,8 @@ class ConversationService
                     'id' => $contact->id,
                     'name' => $contact->name,
                     'email' => $contact->email,
+                    'avatar_url' => $contact->avatar_url,
+                    'avatar_initials' => $contact->initials,
                     'online' => $this->presenceService->isOnline($contact->id),
                     'last_seen_at' => $lastSeenAt?->toIso8601String(),
                     'unread_count' => (int) ($unreadCounts[$contact->id] ?? 0),

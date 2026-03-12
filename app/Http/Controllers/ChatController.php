@@ -70,7 +70,6 @@ class ChatController extends Controller
 
         return view('media.index', [
             'attachments' => $attachments,
-            'authUser' => $authUser,
         ]);
     }
 }
