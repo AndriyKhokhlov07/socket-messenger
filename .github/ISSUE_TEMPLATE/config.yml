@@ -1,0 +1,6 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report
+    url: https://github.com/AndriyKhokhlov07/socket-messenger
+    about: Please contact the repository owner privately for sensitive security issues.
+

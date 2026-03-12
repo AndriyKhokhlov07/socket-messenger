@@ -326,3 +326,30 @@ git push -u origin main
 - Default auth pages and dashboard are styled to match messenger visual language.
 - Reverb server runs in dedicated container (`reverb` service).
 - For production deployment, configure secure secrets, HTTPS, proper queue supervision, and monitoring.
+
+---
+
+## 13. Collaboration Standards
+
+- [Contributing Guide](./CONTRIBUTING.md)
+- [Code of Conduct](./CODE_OF_CONDUCT.md)
+- [Bug Report Template](./.github/ISSUE_TEMPLATE/bug_report.yml)
+- [Feature Request Template](./.github/ISSUE_TEMPLATE/feature_request.yml)
+- [Pull Request Template](./.github/pull_request_template.md)
+
+---
+
+## 14. Release Process
+
+This repository includes an automated release workflow:
+
+- Workflow file: `.github/workflows/release.yml`
+- Trigger: pushing a tag that starts with `v` (example: `v1.0.0`)
+- Result: GitHub Release is created automatically with generated release notes
+
+Example:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
