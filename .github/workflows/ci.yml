@@ -36,7 +36,7 @@ jobs:
           php artisan key:generate
 
       - name: Run backend tests
-        run: php artisan test --no-interaction
+        run: php artisan test
 
       - name: Install frontend dependencies
         run: npm ci
