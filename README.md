@@ -1,5 +1,7 @@
 # Socket Messenger
 
+[![CI](https://github.com/AndriyKhokhlov07/socket-messenger/actions/workflows/ci.yml/badge.svg)](https://github.com/AndriyKhokhlov07/socket-messenger/actions/workflows/ci.yml)
+
 Production-ready real-time messenger built with Laravel 12, Reverb, Redis, and MySQL.  
 Project includes authentication, contacts, private chat channels, typing indicators, delivery/read statuses, and a custom messenger UI.
 
@@ -42,6 +44,11 @@ Project includes authentication, contacts, private chat channels, typing indicat
 - Message statuses: `sent`, `delivered`, `read`
 - Read receipts in chat + contact preview metadata
 - Responsive messenger UI
+
+### CI Quality Gate
+- GitHub Actions workflow: `.github/workflows/ci.yml`
+- Trigger: every `push` and `pull_request` to `main`
+- Checks: backend tests (`php artisan test`) + frontend build (`npm run build`)
 
 ---
 
