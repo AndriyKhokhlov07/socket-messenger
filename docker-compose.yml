@@ -1,0 +1,56 @@
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: messenger_app
+    volumes:
+      - .:/var/www
+    depends_on:
+      - mysql
+      - redis
+
+  nginx:
+    image: nginx:latest
+    container_name: messenger_nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d
+    depends_on:
+      - app
+
+  mysql:
+    image: mysql:8
+    container_name: messenger_mysql
+    environment:
+      MYSQL_DATABASE: messenger
+      MYSQL_ROOT_PASSWORD: root
+
+  redis:
+    image: redis:7
+    container_name: messenger_redis
+
+  reverb:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: messenger_reverb
+    command: php artisan reverb:start
+    ports:
+      - "6001:8080"
+    volumes:
+      - .:/var/www
+    depends_on:
+      - redis
+      - mysql
+
+  node:
+    image: node:20
+    container_name: messenger_node
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    command: tail -f /dev/null
