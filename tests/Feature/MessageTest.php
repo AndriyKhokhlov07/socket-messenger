@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Message;
 use App\Models\User;
+use App\Models\UserBlock;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -191,5 +192,165 @@ class MessageTest extends TestCase
                 'id' => $contactTwo->id,
                 'unread_count' => 1,
             ]);
+    }
+
+    public function test_authenticated_user_can_reply_to_message(): void
+    {
+        [$sender, $receiver] = User::factory()->count(2)->create();
+
+        $original = Message::query()->create([
+            'sender_id' => $receiver->id,
+            'receiver_id' => $sender->id,
+            'body' => 'Original message',
+            'status' => Message::STATUS_SENT,
+        ]);
+
+        $response = $this->actingAs($sender)->postJson('/messages', [
+            'receiver_id' => $receiver->id,
+            'body' => 'Reply message',
+            'reply_to_message_id' => $original->id,
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.body', 'Reply message')
+            ->assertJsonPath('data.reply_to.id', $original->id)
+            ->assertJsonPath('data.reply_to.sender_id', $original->sender_id);
+
+        $this->assertDatabaseHas('messages', [
+            'sender_id' => $sender->id,
+            'receiver_id' => $receiver->id,
+            'body' => 'Reply message',
+            'reply_to_message_id' => $original->id,
+        ]);
+    }
+
+    public function test_blocked_users_cannot_send_messages(): void
+    {
+        [$sender, $receiver] = User::factory()->count(2)->create();
+
+        UserBlock::query()->create([
+            'blocker_id' => $receiver->id,
+            'blocked_user_id' => $sender->id,
+            'reason' => 'blocked',
+        ]);
+
+        $this->actingAs($sender)
+            ->postJson('/messages', [
+                'receiver_id' => $receiver->id,
+                'body' => 'Can you see this?',
+            ])
+            ->assertForbidden();
+    }
+
+    public function test_contact_profile_endpoint_returns_shared_attachment_stats(): void
+    {
+        Storage::fake('public');
+        [$currentUser, $contact] = User::factory()->count(2)->create();
+
+        Message::query()->create([
+            'sender_id' => $currentUser->id,
+            'receiver_id' => $contact->id,
+            'body' => '',
+            'attachment_path' => 'chat-attachments/2026/03/photo.png',
+            'attachment_name' => 'photo.png',
+            'attachment_type' => 'image',
+            'attachment_size' => 1280,
+            'status' => Message::STATUS_SENT,
+        ]);
+
+        Message::query()->create([
+            'sender_id' => $contact->id,
+            'receiver_id' => $currentUser->id,
+            'body' => '',
+            'attachment_path' => 'chat-attachments/2026/03/voice.ogg',
+            'attachment_name' => 'voice.ogg',
+            'attachment_type' => 'audio',
+            'attachment_size' => 640,
+            'status' => Message::STATUS_SENT,
+        ]);
+
+        $this->actingAs($currentUser)
+            ->getJson("/chat/contacts/{$contact->id}/profile")
+            ->assertOk()
+            ->assertJsonPath('data.id', $contact->id)
+            ->assertJsonPath('data.shared_stats.images', 1)
+            ->assertJsonPath('data.shared_stats.audio', 1);
+    }
+
+    public function test_contact_actions_endpoint_can_block_report_unblock_and_delete_conversation(): void
+    {
+        [$currentUser, $contact] = User::factory()->count(2)->create();
+
+        Message::query()->create([
+            'sender_id' => $currentUser->id,
+            'receiver_id' => $contact->id,
+            'body' => 'Hello',
+            'status' => Message::STATUS_SENT,
+        ]);
+        Message::query()->create([
+            'sender_id' => $contact->id,
+            'receiver_id' => $currentUser->id,
+            'body' => 'Hi',
+            'status' => Message::STATUS_SENT,
+        ]);
+
+        $this->actingAs($currentUser)
+            ->postJson('/chat/contacts/actions', [
+                'action' => 'block',
+                'contact_ids' => [$contact->id],
+                'reason' => 'spam',
+            ])
+            ->assertOk()
+            ->assertJsonPath('ok', true);
+
+        $this->assertDatabaseHas('user_blocks', [
+            'blocker_id' => $currentUser->id,
+            'blocked_user_id' => $contact->id,
+            'reason' => 'spam',
+        ]);
+
+        $this->actingAs($currentUser)
+            ->postJson('/chat/contacts/actions', [
+                'action' => 'report',
+                'contact_ids' => [$contact->id],
+                'reason' => 'abuse',
+            ])
+            ->assertOk();
+
+        $this->assertDatabaseHas('user_reports', [
+            'reporter_id' => $currentUser->id,
+            'reported_user_id' => $contact->id,
+            'reason' => 'abuse',
+        ]);
+
+        $this->actingAs($currentUser)
+            ->postJson('/chat/contacts/actions', [
+                'action' => 'delete_conversation',
+                'contact_ids' => [$contact->id],
+            ])
+            ->assertOk();
+
+        $this->assertDatabaseMissing('messages', [
+            'sender_id' => $currentUser->id,
+            'receiver_id' => $contact->id,
+            'body' => 'Hello',
+        ]);
+        $this->assertDatabaseMissing('messages', [
+            'sender_id' => $contact->id,
+            'receiver_id' => $currentUser->id,
+            'body' => 'Hi',
+        ]);
+
+        $this->actingAs($currentUser)
+            ->postJson('/chat/contacts/actions', [
+                'action' => 'unblock',
+                'contact_ids' => [$contact->id],
+            ])
+            ->assertOk();
+
+        $this->assertDatabaseMissing('user_blocks', [
+            'blocker_id' => $currentUser->id,
+            'blocked_user_id' => $contact->id,
+        ]);
     }
 }

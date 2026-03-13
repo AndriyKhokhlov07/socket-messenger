@@ -31,6 +31,9 @@ class ProfileTest extends TestCase
             ->actingAs($user)
             ->patch('/profile', [
                 'name' => 'Test User',
+                'nickname' => 'tester',
+                'phone' => '+380501112233',
+                'bio' => 'Laravel messenger profile bio',
                 'email' => 'test@example.com',
             ]);
 
@@ -41,6 +44,9 @@ class ProfileTest extends TestCase
         $user->refresh();
 
         $this->assertSame('Test User', $user->name);
+        $this->assertSame('tester', $user->nickname);
+        $this->assertSame('+380501112233', $user->phone);
+        $this->assertSame('Laravel messenger profile bio', $user->bio);
         $this->assertSame('test@example.com', $user->email);
         $this->assertNull($user->email_verified_at);
     }

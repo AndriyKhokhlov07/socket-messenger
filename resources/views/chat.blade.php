@@ -42,6 +42,13 @@
                 <input id="contact-search" type="text" placeholder="Search users">
             </div>
 
+            <div class="tg-contact-tools">
+                <button id="select-mode-toggle" class="tg-contact-tools__btn" type="button">Select</button>
+                <button id="bulk-block" class="tg-contact-tools__btn" type="button" disabled>Block</button>
+                <button id="bulk-report" class="tg-contact-tools__btn" type="button" disabled>Report</button>
+                <button id="bulk-delete" class="tg-contact-tools__btn tg-contact-tools__btn--danger" type="button" disabled>Delete</button>
+            </div>
+
             <section class="tg-contacts" id="contacts-list">
                 <div class="tg-state">Loading contacts...</div>
             </section>
@@ -57,13 +64,17 @@
                     <
                 </button>
 
-                <div class="tg-chat__identity">
+                <button
+                    type="button"
+                    id="contact-profile-trigger"
+                    class="tg-chat__identity tg-chat__identity-btn"
+                    disabled>
                     <div class="tg-avatar tg-avatar--sm" id="active-contact-avatar">?</div>
                     <div>
                         <h2 id="active-contact-name">Select a conversation</h2>
                         <p id="active-contact-meta">Choose a user from the list</p>
                     </div>
-                </div>
+                </button>
 
                 <button id="refresh-contacts" class="tg-refresh" type="button">Refresh</button>
             </header>
@@ -76,14 +87,23 @@
                 </div>
             </section>
 
+            <aside class="tg-contact-profile" id="contact-profile-panel" hidden>
+                <div class="tg-contact-profile__head">
+                    <h3>Contact info</h3>
+                    <button id="contact-profile-close" type="button" aria-label="Close contact info">&times;</button>
+                </div>
+                <div class="tg-contact-profile__body" id="contact-profile-content"></div>
+            </aside>
+
             <form class="tg-inputbar" id="message-form" enctype="multipart/form-data">
                 <input
                     id="attachment-input"
                     type="file"
                     hidden
-                    accept="image/*,video/*,.pdf,.txt,.doc,.docx,.xls,.xlsx,.zip,.rar">
+                    accept="image/*,video/*,audio/*,.pdf,.txt,.doc,.docx,.xls,.xlsx,.zip,.rar">
 
                 <div class="tg-attachment-preview" id="attachment-preview" hidden></div>
+                <div class="tg-reply-preview" id="reply-preview" hidden></div>
                 <div class="tg-emoji-picker" id="emoji-picker" hidden></div>
 
                 <div class="tg-inputbar__row">
@@ -92,7 +112,7 @@
                         type="button"
                         class="tg-inputbar__icon"
                         aria-label="Insert emoji">
-                        🙂
+                        &#128578;
                     </button>
 
                     <button
@@ -100,7 +120,15 @@
                         type="button"
                         class="tg-inputbar__icon"
                         aria-label="Attach file">
-                        📎
+                        &#128206;
+                    </button>
+
+                    <button
+                        id="voice-button"
+                        type="button"
+                        class="tg-inputbar__icon"
+                        aria-label="Record voice message">
+                        &#127908;
                     </button>
 
                     <textarea

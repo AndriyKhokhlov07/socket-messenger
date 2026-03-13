@@ -4,6 +4,7 @@ namespace App\Services\Chat;
 
 use App\Models\Message;
 use App\Models\User;
+use App\Models\UserBlock;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
@@ -55,20 +56,35 @@ class ConversationService
             ->groupBy('sender_id')
             ->pluck('unread_count', 'sender_id');
 
+        $blockedByMeIds = UserBlock::query()
+            ->where('blocker_id', $currentUserId)
+            ->pluck('blocked_user_id')
+            ->all();
+
+        $blockedMeIds = UserBlock::query()
+            ->where('blocked_user_id', $currentUserId)
+            ->pluck('blocker_id')
+            ->all();
+
         return User::query()
             ->whereKeyNot($currentUserId)
             ->orderBy('name')
-            ->get(['id', 'name', 'email', 'avatar_path'])
-            ->map(function (User $contact) use ($latestMessages, $unreadCounts, $currentUserId) {
+            ->get(['id', 'name', 'nickname', 'phone', 'bio', 'email', 'avatar_path'])
+            ->map(function (User $contact) use ($latestMessages, $unreadCounts, $currentUserId, $blockedByMeIds, $blockedMeIds) {
                 $latestMessage = $latestMessages->get($contact->id);
                 $lastSeenAt = $this->presenceService->lastSeenAt($contact->id);
 
                 return [
                     'id' => $contact->id,
                     'name' => $contact->name,
+                    'nickname' => $contact->nickname,
+                    'phone' => $contact->phone,
+                    'bio' => $contact->bio,
                     'email' => $contact->email,
                     'avatar_url' => $contact->avatar_url,
                     'avatar_initials' => $contact->initials,
+                    'is_blocked_by_me' => in_array($contact->id, $blockedByMeIds, true),
+                    'has_blocked_me' => in_array($contact->id, $blockedMeIds, true),
                     'online' => $this->presenceService->isOnline($contact->id),
                     'last_seen_at' => $lastSeenAt?->toIso8601String(),
                     'unread_count' => (int) ($unreadCounts[$contact->id] ?? 0),
@@ -97,6 +113,7 @@ class ConversationService
 
         $query = Message::query()
             ->betweenUsers($user->id, $contact->id)
+            ->with('replyTo:id,sender_id,body,attachment_name,attachment_type')
             ->orderByDesc('id');
 
         if ($beforeId !== null) {

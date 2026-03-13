@@ -61,12 +61,20 @@ class MessageController extends Controller
     public function store(StoreMessageRequest $request): MessageResource
     {
         $receiver = User::query()->findOrFail((int) $request->validated('receiver_id'));
+        $replyToMessage = null;
+
+        if ($request->filled('reply_to_message_id')) {
+            $replyToMessage = Message::query()
+                ->betweenUsers($request->user()->id, $receiver->id)
+                ->findOrFail((int) $request->validated('reply_to_message_id'));
+        }
 
         $message = $this->messageService->send(
             sender: $request->user(),
             receiver: $receiver,
             body: (string) ($request->validated('body') ?? ''),
             attachment: $request->file('attachment'),
+            replyToMessage: $replyToMessage,
         );
 
         return new MessageResource($message);

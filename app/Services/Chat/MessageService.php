@@ -7,20 +7,31 @@ use App\Events\MessageStatusUpdated;
 use App\Events\UserTyping;
 use App\Models\Message;
 use App\Models\User;
+use App\Models\UserBlock;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 
 class MessageService
 {
-    public function send(User $sender, User $receiver, ?string $body = null, ?UploadedFile $attachment = null): Message
-    {
+    public function send(
+        User $sender,
+        User $receiver,
+        ?string $body = null,
+        ?UploadedFile $attachment = null,
+        ?Message $replyToMessage = null
+    ): Message {
+        if ($this->isBlockedBetween($sender->id, $receiver->id)) {
+            throw new AuthorizationException('Messaging is not available for blocked users.');
+        }
+
         $normalizedBody = trim((string) $body);
         $attachmentMeta = $this->storeAttachment($attachment);
 
         $message = Message::query()->create([
             'sender_id' => $sender->id,
             'receiver_id' => $receiver->id,
+            'reply_to_message_id' => $replyToMessage?->id,
             'body' => $normalizedBody,
             'attachment_path' => $attachmentMeta['path'] ?? null,
             'attachment_name' => $attachmentMeta['name'] ?? null,
@@ -30,7 +41,11 @@ class MessageService
             'status' => Message::STATUS_SENT,
         ]);
 
-        $message->loadMissing('sender:id,name', 'receiver:id,name');
+        $message->loadMissing(
+            'sender:id,name',
+            'receiver:id,name',
+            'replyTo:id,sender_id,body,attachment_name,attachment_type'
+        );
 
         broadcast(new MessageSent($message));
 
@@ -97,6 +112,10 @@ class MessageService
             return;
         }
 
+        if ($this->isBlockedBetween($sender->id, $receiver->id)) {
+            return;
+        }
+
         $throttleKey = sprintf('chat:typing:%d:%d', $sender->id, $receiver->id);
 
         if (! Cache::add($throttleKey, 1, 1)) {
@@ -158,6 +177,24 @@ class MessageService
             return 'video';
         }
 
+        if (str_starts_with($mime, 'audio/')) {
+            return 'audio';
+        }
+
         return 'file';
+    }
+
+    private function isBlockedBetween(int $firstUserId, int $secondUserId): bool
+    {
+        return UserBlock::query()
+            ->where(function ($query) use ($firstUserId, $secondUserId) {
+                $query->where('blocker_id', $firstUserId)
+                    ->where('blocked_user_id', $secondUserId);
+            })
+            ->orWhere(function ($query) use ($firstUserId, $secondUserId) {
+                $query->where('blocker_id', $secondUserId)
+                    ->where('blocked_user_id', $firstUserId);
+            })
+            ->exists();
     }
 }

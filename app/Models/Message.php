@@ -23,6 +23,7 @@ class Message extends Model
     protected $fillable = [
         'sender_id',
         'receiver_id',
+        'reply_to_message_id',
         'body',
         'attachment_path',
         'attachment_name',
@@ -56,6 +57,11 @@ class Message extends Model
     public function receiver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'receiver_id');
+    }
+
+    public function replyTo(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'reply_to_message_id');
     }
 
     public function scopeBetweenUsers(Builder $query, int $firstUserId, int $secondUserId): Builder

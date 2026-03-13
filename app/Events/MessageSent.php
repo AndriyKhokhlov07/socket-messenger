@@ -13,7 +13,11 @@ class MessageSent implements ShouldBroadcastNow
 
     public function __construct(Message $message)
     {
-        $this->message = $message->loadMissing('sender:id,name', 'receiver:id,name');
+        $this->message = $message->loadMissing(
+            'sender:id,name',
+            'receiver:id,name',
+            'replyTo:id,sender_id,body,attachment_name,attachment_type'
+        );
     }
 
     public function broadcastOn(): PrivateChannel
@@ -32,6 +36,13 @@ class MessageSent implements ShouldBroadcastNow
                 'receiver_id' => $this->message->receiver_id,
                 'sender_name' => $this->message->sender?->name,
                 'body' => $this->message->body,
+                'reply_to' => $this->message->replyTo ? [
+                    'id' => $this->message->replyTo->id,
+                    'sender_id' => $this->message->replyTo->sender_id,
+                    'body' => $this->message->replyTo->body,
+                    'attachment_name' => $this->message->replyTo->attachment_name,
+                    'attachment_type' => $this->message->replyTo->attachment_type,
+                ] : null,
                 'has_attachment' => $hasAttachment,
                 'attachment' => $hasAttachment ? [
                     'path' => $this->message->attachment_path,

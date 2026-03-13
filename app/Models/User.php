@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
@@ -21,6 +22,9 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'nickname',
+        'phone',
+        'bio',
         'email',
         'avatar_path',
         'password',
@@ -67,5 +71,15 @@ class User extends Authenticatable
             ->map(fn (string $word): string => mb_strtoupper(mb_substr($word, 0, 1)));
 
         return $letters->implode('') ?: 'U';
+    }
+
+    public function blocksInitiated(): HasMany
+    {
+        return $this->hasMany(UserBlock::class, 'blocker_id');
+    }
+
+    public function blocksReceived(): HasMany
+    {
+        return $this->hasMany(UserBlock::class, 'blocked_user_id');
     }
 }

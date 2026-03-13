@@ -50,9 +50,33 @@
                 </div>
 
                 <div>
+                    <label for="nickname">{{ __('Nickname') }}</label>
+                    <input id="nickname" name="nickname" type="text" value="{{ old('nickname', $user->nickname) }}" autocomplete="nickname">
+                    @error('nickname')
+                        <p class="tg-form-errors">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="phone">{{ __('Phone') }}</label>
+                    <input id="phone" name="phone" type="text" value="{{ old('phone', $user->phone) }}" autocomplete="tel">
+                    @error('phone')
+                        <p class="tg-form-errors">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
                     <label for="email">{{ __('Email') }}</label>
                     <input id="email" name="email" type="email" value="{{ old('email', $user->email) }}" required autocomplete="username">
                     @error('email')
+                        <p class="tg-form-errors">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="bio">{{ __('Bio') }}</label>
+                    <textarea id="bio" name="bio" rows="3" maxlength="500">{{ old('bio', $user->bio) }}</textarea>
+                    @error('bio')
                         <p class="tg-form-errors">{{ $message }}</p>
                     @enderror
                 </div>

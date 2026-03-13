@@ -26,6 +26,10 @@ Route::middleware(['auth', TouchUserPresence::class])->group(function () {
 
     Route::get('/chat', [ChatController::class, 'index'])->name('chat');
     Route::get('/chat/contacts', [ChatController::class, 'contacts'])->name('chat.contacts');
+    Route::get('/chat/contacts/{user}/profile', [ChatController::class, 'contactProfile'])
+        ->whereNumber('user')
+        ->name('chat.contacts.profile');
+    Route::post('/chat/contacts/actions', [ChatController::class, 'contactActions'])->name('chat.contacts.actions');
     Route::get('/contacts', [ChatController::class, 'directory'])->name('contacts.index');
     Route::get('/media', [ChatController::class, 'media'])->name('media.index');
 

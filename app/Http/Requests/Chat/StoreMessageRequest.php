@@ -25,11 +25,12 @@ class StoreMessageRequest extends FormRequest
                 Rule::notIn([$this->user()?->id]),
             ],
             'body' => ['nullable', 'string', 'max:4000', 'required_without:attachment'],
+            'reply_to_message_id' => ['nullable', 'integer', 'exists:messages,id'],
             'attachment' => [
                 'nullable',
                 'file',
                 'max:25600',
-                'mimes:jpg,jpeg,png,gif,webp,svg,mp4,webm,mov,m4v,pdf,txt,doc,docx,xls,xlsx,zip,rar',
+                'mimes:jpg,jpeg,png,gif,webp,svg,mp4,webm,mov,m4v,mp3,wav,ogg,weba,m4a,aac,pdf,txt,doc,docx,xls,xlsx,zip,rar',
             ],
         ];
     }

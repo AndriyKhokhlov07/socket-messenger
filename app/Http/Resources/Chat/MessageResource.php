@@ -19,11 +19,21 @@ class MessageResource extends JsonResource
         $attachmentDisk = 'public';
         $attachmentPath = $this->attachment_path;
         $hasAttachment = $attachmentPath !== null && $attachmentPath !== '';
+        $replyMessage = $this->resource->relationLoaded('replyTo')
+            ? $this->replyTo
+            : $this->replyTo()->first();
 
         return [
             'id' => (int) $this->id,
             'sender_id' => (int) $this->sender_id,
             'receiver_id' => (int) $this->receiver_id,
+            'reply_to' => $replyMessage ? [
+                'id' => (int) $replyMessage->id,
+                'sender_id' => (int) $replyMessage->sender_id,
+                'body' => (string) $replyMessage->body,
+                'attachment_name' => $replyMessage->attachment_name,
+                'attachment_type' => $replyMessage->attachment_type,
+            ] : null,
             'body' => (string) $this->body,
             'has_attachment' => $hasAttachment,
             'attachment' => $hasAttachment ? [
